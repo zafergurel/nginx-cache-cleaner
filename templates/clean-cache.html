@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cache Cleaning</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12pt;
+        }
+
+        #result {
+            background-color: #f5f5f5;
+            border: 1px dotted gray;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 10pt;
+            width: 1000px;
+        }
+
+        label {
+            width: 150px;
+            display: inline-block;
+        }
+
+        .buttons {
+            width: 354px;
+            text-align: right;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script>
+        $(function () {
+            $("#purge").click(function (e) {
+                doApiAction('purge');
+                return false;
+            });
+            $("#inspect").click(function (e) {
+                e.stopImmediatePropagation();
+                doApiAction('inspect');
+                return false;
+            });
+        });
+
+        function doApiAction(opName) {
+            var frm = document.forms.frm;
+            var result = $("#result");
+            var result_content = $("#result_content");
+            var loading = $("#loading");
+
+            var startTime = Date.now();;
+
+            var endpoint = '/' + opName;
+
+            result.hide();
+            result_content.html('');
+
+            if ($.trim($("#keyword").val()).length === 0 || $.trim($("#cache_index_file").val()).length === 0) {
+                alert("Please fill all of the fields...");
+                return false;
+            }
+
+            var jqxhr = $.post(
+                endpoint,
+                $(frm).serialize()
+            ).done(function (res) {
+                console.dir(res);
+                res = (res ? res : '').replace(/\n/gi, '<br>');
+                var duration = (Date.now() - startTime) / 1000;
+                result_content.html('Process duration: ' + duration + ' seconds<br>' + res);
+                result.show();
+            }).fail(function (res) {
+                console.dir(res);
+                alert('Error: ' + JSON.stringify(res));
+            }).always(function (res) {
+                $('.buttons').prop("disabled", false);
+                loading.hide();
+            });
+            $('.buttons').prop("disabled", true);
+            loading.text("Please wait...").show();
+        }
+    </script>
+</head>
+
+<body>
+    <h3>Clear Cache</h3>
+    <form action="" method="post" name="frm">
+        <label for="keyword">
+            File Name:
+        </label>
+        <input name="keyword" id="keyword" style="width:196px; margin: 0px;" />
+        <br>
+        <label for="cache_index_file">
+            Cache:
+        </label>
+        <select name="cache_index_file" id="cache_index_file" style="width:200px; margin: 0px;">
+            <option selected value="">Seçiniz</option>
+            {% for index_file in index_files %}
+            <option value="{{ index_file }}">{{ index_file }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <div class="buttons">
+            <button id="inspect" style="width: 100px;">Query</button>
+            <button id="purge" style="width: 100px;">Delete</button>
+        </div>
+
+    </form>
+    <hr />
+    <div style="display: none;" id="loading"></div>
+    <div style="display: none" id="result">
+        <strong>Result:</strong><br>
+        <div id="result_content"></div>
+    </div>
+</body>
+
+</html>
