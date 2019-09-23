@@ -13,6 +13,7 @@ index_folder = "/cache/_cacheindex"
 default_cache_duration = 30
 current_dir = os.getcwd()
 index_creator_script = current_dir + "/bin/create_index.sh"
+dir_empty_check_script = current_dir + "/bin/is_empty_dir.sh"
 
 def create_indexes(op_mode="append"):
     '''Creates index files for each nginx cache folder.
@@ -43,6 +44,12 @@ def create_indexes(op_mode="append"):
             print("Cache operation: "+ op_mode + " -> " + f + " (" + str(delta) + " days)")
             subprocess.Popen([index_creator_script, op_mode, f, index_file, str(delta)]).wait()
 
+def is_empty_dir(dir_path):
+    result = "0"
+    with subprocess.Popen([dir_empty_check_script, dir_path],stdout=subprocess.PIPE) as proc:
+        result = proc.stdout.read().decode().strip
+    return result == "1"
+
 def get_folders(base_folder):
     '''Returns all the folders (except index_folder) under 
     cache folder.
@@ -51,8 +58,7 @@ def get_folders(base_folder):
     for root, dirs, _ in os.walk(base_folder):
         for dir in dirs:
             full_path = root + "/" + dir
-            only_files = [f for f in os.listdir(full_path) if os.path.isfile(os.path.join(full_path, f))]
-            if full_path != index_folder and len(only_files) > 0:
+            if full_path != index_folder and not is_empty_dir(full_path):
                 folders.append(full_path)
     return folders
 
