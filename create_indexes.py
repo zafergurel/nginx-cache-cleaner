@@ -45,6 +45,8 @@ def create_indexes(op_mode="append"):
             subprocess.Popen([index_creator_script, op_mode, f, index_file, str(delta)]).wait()
 
 def is_empty_dir(dir_path):
+    '''Checks whether a directory is empty or not
+    '''
     result = "0"
     with subprocess.Popen([dir_empty_check_script, dir_path],stdout=subprocess.PIPE) as proc:
         result = proc.stdout.read().decode().strip
