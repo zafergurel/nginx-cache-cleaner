@@ -49,7 +49,7 @@ def is_empty_dir(dir_path):
     '''
     result = "0"
     with subprocess.Popen([dir_empty_check_script, dir_path],stdout=subprocess.PIPE) as proc:
-        result = proc.stdout.read().decode().strip
+        result = proc.stdout.read().decode().strip()
     return result == "1"
 
 def get_folders(base_folder):
