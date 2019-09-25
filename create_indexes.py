@@ -11,7 +11,7 @@ import sys
 cache_folder = "/cache"
 index_folder = "/cache/_cacheindex"
 default_cache_duration = 30
-current_dir = os.getcwd()
+current_dir = os.path.dirname(os.path.realpath(__file__))
 index_creator_script = current_dir + "/bin/create_index.sh"
 dir_empty_check_script = current_dir + "/bin/is_empty_dir.sh"
 
