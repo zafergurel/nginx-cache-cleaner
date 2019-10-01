@@ -89,15 +89,15 @@
     <h3>Clear Cache</h3>
     <form action="" method="post" name="frm">
         <label for="keyword">
-            File Name:
+            Cache Key:
         </label>
         <input name="keyword" id="keyword" style="width:196px; margin: 0px;" />
         <br>
         <label for="cache_index_file">
-            Cache:
+            Cache Section:
         </label>
         <select name="cache_index_file" id="cache_index_file" style="width:200px; margin: 0px;">
-            <option selected value="">Seçiniz</option>
+            <option selected value="">Select index file</option>
             {% for index_file in index_files %}
             <option value="{{ index_file }}">{{ index_file }}</option>
             {% endfor %}

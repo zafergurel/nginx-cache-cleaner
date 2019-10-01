@@ -1,3 +1,7 @@
+'''Nginx Cache Cleaner API
+A small project to make it easy to find (and purge)
+cached files on an Nginx server.
+'''
 from flask import stream_with_context, Flask, request, Response, render_template
 import os, signal, subprocess, argparse, time, re
 
@@ -8,13 +12,15 @@ get_path = lambda p: os.path.join(current_dir, (p or ""))
 
 @app.route('/cache-cleaner/purge', methods=["POST"])
 def purge():
+    '''The endpoint to find entries in an index file,
+    then delete the corresponding cached files and removing
+    those entries from the index.
+    '''
     keyword = xstr(request.form.get("keyword"))
     cache_index_file = xstr(request.form.get("cache_index_file"))
 
     if cache_index_file == '' or keyword == '':
         return Response("error: invalid-parameter", mimetype='text/plain')
-    elif cache_index_file == "perculus" and len(keyword) < 3:
-        return Response("error: keyword-min-3-char", mimetype='text/plain')
 
     output, error = subprocess.Popen([get_path("bin/purge_cache.sh"), keyword, cache_index_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
@@ -28,6 +34,8 @@ def purge():
 
 @app.route('/cache-cleaner/inspect', methods=["POST"])
 def inspect():
+    '''The endpoint to find entries in an index file
+    '''
     keyword = xstr(request.form.get("keyword"))
     cache_index_file = xstr(request.form.get("cache_index_file"))
 
@@ -45,12 +53,15 @@ def inspect():
 @app.route('/cache-cleaner/')
 @app.route('/cache-cleaner')
 def clean_cache_page():
+    '''Renders clean-cache.html template
+    '''
     index_folder = "/cache/_cacheindex"
     index_files = []
     for f in os.listdir(index_folder):
         index_files.append(index_folder + "/" + f)
+    index_files = sorted(index_files)
     return render_template("clean-cache.html", index_files=index_files)
-    
+
 
 if __name__ == "__main__":
     pid = os.getpid()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''
+'''Nginx Cache Index Generator
 Creates index files for each nginx cache folder
 '''
 import os
@@ -30,7 +30,7 @@ def create_indexes(op_mode="append"):
         subprocess.Popen(["mkdir", "-p", index_folder]).wait()
 
     folders = get_folders(cache_folder)
-    
+
     for f in folders:
         index_file = index_folder + "/" + f.replace("/", "_") + ".ind"
         delta = -1 * default_cache_duration
@@ -39,6 +39,10 @@ def create_indexes(op_mode="append"):
             # get creation time
             ctime = datetime.datetime.fromtimestamp(os.stat(index_file).st_mtime)
             delta = -1 * round((datetime.datetime.now() - ctime).seconds / 3600 / 24, 2)
+        
+        # delta cannot be less than default duration
+        if delta < -1 * default_cache_duration:
+            delta = -1 * default_cache_duration
         
         if delta < 0:
             print("Cache operation: "+ op_mode + " -> " + f + " (" + str(delta) + " days)")
@@ -63,7 +67,6 @@ def get_folders(base_folder):
             if full_path != index_folder and not is_empty_dir(full_path):
                 folders.append(full_path)
     return folders
-
 
 if __name__ == "__main__":
     op_mode = sys.argv[1] if len(sys.argv) > 1 else "append"

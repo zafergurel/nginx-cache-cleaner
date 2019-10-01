@@ -11,3 +11,6 @@ elif [ $op == "create" ]
 then
     find $folder -maxdepth 1 -type f -mtime $delta | xargs -P 16 -I @@ bash -c 'head -n 3 @@ | awk '\''/KEY: (.+)/{print "'@@'", $2}'\'' ' > $output_file
 fi
+
+# touch file to update its timestamp
+touch $output_file
